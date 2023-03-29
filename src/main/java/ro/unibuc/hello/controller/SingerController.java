@@ -29,4 +29,19 @@ public class SingerController {
     public SingerDTO getSinger(@RequestParam(name = "id") String id) {
         return singerService.getSinger(id);
     }
+
+    @PutMapping("/singer/edit")
+    @ResponseBody
+    public SingerDTO editSinger(@RequestParam(name = "id") String id, @RequestParam(name = "name", required = false) String name, @RequestParam(name = "age", required = false) Integer age, @RequestParam(name = "genre", required = false) String genre, @RequestParam(name = "popularity", required = false) Integer popularity, @RequestParam(name = "hitSongs", required = false) String[] hitSongs) {
+        return singerService.editSinger(id, name, age, genre, popularity, hitSongs);
+    }
+
+    @DeleteMapping("/singer/delete")
+    @ResponseBody
+    public String deleteSinger(@RequestParam(name="id") String id) {
+        return singerService.deleteSinger(id);
+    }
+
+
 }
+

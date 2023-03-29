@@ -34,8 +34,33 @@ public class SingerService {
         }
     }
 
+    public SingerDTO editSinger(String id, String name, Integer age, String genre, Integer popularity, String[] hitSongs) {
+        SingerEntity singer = singerRepository.findById(String.valueOf(new ObjectId(id))).orElse(null);
+        if (singer != null) {
+            if (name != null) {
+                singer.setName(name);
+            }
+            if (age != null) {
+                singer.setAge(age);
+            }
+            if (genre != null) {
+                singer.setGenre(genre);
+            }
+            if (popularity != null) {
+                singer.setPopularity(popularity);
+            }
+            if (hitSongs != null) {
+                singer.setHitSongs(hitSongs);
+            }
+            return new SingerDTO(singerRepository.save(singer));
+        } else {
+            return null;
+        }
+    }
 
+    public String deleteSinger(String id) {
+        singerRepository.deleteById(String.valueOf(new ObjectId(id)));
+        return "Singer " + id + " has been successfully deleted.";
 
-
-
+    }
 }
