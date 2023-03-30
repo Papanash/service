@@ -26,6 +26,14 @@ public class SingerDTO {
         this.hitSongs = singer.getHitSongs();
     }
 
+    public SingerDTO(String name, int age, String genre, int pop, String[] hits) {
+        this.name = name;
+        this.age = age;
+        this.genre = genre;
+        this.popularity = pop;
+        this.hitSongs = hits;
+    }
+
     public String getId() {
         return id;
     }

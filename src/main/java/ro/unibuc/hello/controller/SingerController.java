@@ -42,6 +42,5 @@ public class SingerController {
         return singerService.deleteSinger(id);
     }
 
-
 }
 
