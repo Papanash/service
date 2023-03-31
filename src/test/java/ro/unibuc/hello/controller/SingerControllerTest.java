@@ -21,6 +21,7 @@ import java.util.List;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
@@ -143,19 +144,23 @@ For example:
         SingerDTO singer = new SingerDTO("Alex Velea", 38, "Urban", 70, new String[]{"Yamasha"});
         String id = "1";
         singer.setId(id);
-        String expectedResponse = "Singer with id " + id + " has been deleted.";
+        String expectedResponse = "Delete successful";
+        String errorResponse = "Error: The singer with the ID " + id + " does not exist.";
 
         when(singerService.deleteSinger(id)).thenReturn(expectedResponse);
+        when(singerService.deleteSinger("nonexistent_id")).thenReturn(errorResponse);
 
-        // Act
-        MvcResult result = mockMvc.perform(delete("/singer/delete")
+        // Act and Assert for successful deletion
+        mockMvc.perform(delete("/singer/delete")
                         .param("id", id))
                 .andExpect(status().isOk())
-                .andReturn();
+                .andExpect(content().string(expectedResponse));
 
-        // Assert
-        Assertions.assertEquals(result.getResponse().getContentAsString(), expectedResponse);
-
+        // Act and Assert for error case
+        mockMvc.perform(delete("/singer/delete")
+                        .param("id", "nonexistent_id"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(errorResponse));
     }
 
 }
