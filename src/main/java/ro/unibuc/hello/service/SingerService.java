@@ -2,6 +2,7 @@ package ro.unibuc.hello.service;
 
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 import ro.unibuc.hello.data.SingerEntity;
 import ro.unibuc.hello.data.SingerRepository;
@@ -59,8 +60,11 @@ public class SingerService {
     }
 
     public String deleteSinger(String id) {
-        singerRepository.deleteById(String.valueOf(new ObjectId(id)));
-        return "Singer " + id + " has been successfully deleted.";
-
+        try {
+            singerRepository.deleteById(String.valueOf(new ObjectId(id)));
+        } catch (EmptyResultDataAccessException e) {
+            return "Error: The singer with the ID " + id + " does not exist.";
+        }
+        return "Delete successful";
     }
 }
