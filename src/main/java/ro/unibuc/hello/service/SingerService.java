@@ -60,11 +60,30 @@ public class SingerService {
     }
 
     public String deleteSinger(String id) {
-        try {
-            singerRepository.deleteById(String.valueOf(new ObjectId(id)));
-        } catch (EmptyResultDataAccessException e) {
-            return "Error: The singer with the ID " + id + " does not exist.";
+        if (!ObjectId.isValid(id)) {
+            return "Error: The provided ID " + id + " is not a valid ObjectId";
         }
+
+        SingerEntity singerEntity = singerRepository.findById(id).orElse(null);
+
+        if (singerEntity == null) {
+            return "Error: The singer with the ID " + id + " does not exist";
+        }
+
+        try {
+            singerRepository.deleteById(id);
+        } catch (EmptyResultDataAccessException e) {
+            return "Error: Failed to delete the singer with the ID " + id;
+        } catch (IllegalArgumentException e) {
+            return "Error: The provided ID " + id + " is not valid";
+        }
+
+        SingerEntity deletedSinger = singerRepository.findById(id).orElse(null);
+
+        if (deletedSinger != null) {
+            return "Error: Failed to delete the singer with the ID " + id;
+        }
+
         return "Delete successful";
     }
 }
