@@ -15,6 +15,7 @@ pipeline {
                 sh './gradlew clean build'
             }
         }
+
         stage('Tag image') {
             steps {
                 script {
@@ -29,6 +30,19 @@ pipeline {
                 sh "docker push mirceap24/hello-img:${MAJOR_VERSION}.\$((${MINOR_VERSION} + 1)).${PATCH_VERSION}"
                 sh "git tag ${env.IMAGE_TAG}"
                 sh "git push https://$GITHUB_TOKEN@github.com/Papanash/service.git ${env.IMAGE_TAG}"
+            }
+        }
+
+        stage('Docker execution') {
+            steps {
+                sh "IMAGE_TAG=${env.IMAGE_TAG} docker-compose up -d hello"
+            }
+        }
+
+        stage('Tests') {
+            steps {
+                sh "./gradlew test"
+                sh "./gradlew testIT"
             }
         }
     }
