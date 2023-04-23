@@ -23,6 +23,8 @@ pipeline {
                     env.PATCH_VERSION = sh([script: 'git tag | sort --version-sort | tail -1 | cut -d . -f 3', returnStdout: true]).trim()
                 }
                 sh "docker build -t mirceap24/hello-img:${MAJOR_VERSION}.\$((${MINOR_VERSION} + 1)).${PATCH_VERSION} ."
+                sh "docker login docker.io -u mirceap24 -p parola123!"
+                sh "docker push mirceap24/hello-img:${MAJOR_VERSION}.\$((${MINOR_VERSION} + 1)).${PATCH_VERSION}"
             }
         }
     }
