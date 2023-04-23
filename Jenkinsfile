@@ -1,10 +1,8 @@
 pipeline {
     agent any
     environment {
-        DOCKER_PASSWORD = credentials("docker_password")
-        VERSION_MAJOR = 0
-        VERSION_MINOR = 0
-        VERSION_PATCH = 0
+        DOCKER_USER = credentials("docker_hub_username")
+        DOCKER_PASSWORD = credentials("docker_hub_password")
     }
 
     stages {
@@ -13,19 +11,19 @@ pipeline {
                 sh './gradlew clean build'
             }
         }
-
         stage('Tag image') {
-            steps {
+              steps {
                 script {
-                    VERSION_MAJOR = sh([script: 'git describe --abbrev=0 --tags | cut -d . -f 1', returnStdout: true]).trim()
-                    VERSION_MINOR = sh([script: 'git describe --abbrev=0 --tags | cut -d . -f 2', returnStdout: true]).trim()
-                    VERSION_PATCH = sh([script: 'git describe --abbrev=0 --tags | cut -d . -f 3', returnStdout: true]).trim()
-                    NEW_MINOR_VERSION = Integer.parseInt(VERSION_MINOR) + 1
+                    env.MAJOR_VERSION = sh([script: 'git tag | sort --version-sort | tail -1 | cut -d . -f 1', returnStdout: true]).trim()
+                    env.MINOR_VERSION = sh([script: 'git tag | sort --version-sort | tail -1 | cut -d . -f 2', returnStdout: true]).trim()
+                    env.PATCH_VERSION = sh([script: 'git tag | sort --version-sort | tail -1 | cut -d . -f 3', returnStdout: true]).trim()
+                    env.NEW_MINOR_VERSION = sh([script: "echo $((MINOR_VERSION + 1))", returnStdout: true]).trim()
+                    env.IMAGE_VERSION = "${MAJOR_VERSION}.${NEW_MINOR_VERSION}.${PATCH_VERSION}"
                 }
-                sh "docker build -t mirceap24/hello-img:${VERSION_MAJOR}.${NEW_MINOR_VERSION}.${VERSION_PATCH} ."
-                sh "docker login docker.io -u mirceap24 -p parola123!"
-                sh "docker push mirceap24/hello-img:${VERSION_MAJOR}.${NEW_MINOR_VERSION}.${VERSION_PATCH}"
-            }
+                sh "docker build -t ${DOCKER_USER}/hello-img:${IMAGE_VERSION} ."
+                sh "docker login docker.io -u ${DOCKER_USER} -p ${DOCKER_PASSWORD}"
+                sh "docker push ${DOCKER_USER}/hello-img:${IMAGE_VERSION}"
+              }
         }
     }
 }
