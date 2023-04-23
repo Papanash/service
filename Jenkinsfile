@@ -3,6 +3,9 @@ pipeline {
     environment {
         DOCKER_USER = credentials("docker_hub_username")
         DOCKER_PASSWORD = credentials("docker_hub_password")
+        MAJOR_VERSION = 0
+        MINOR_VERSION = 0
+        PATCH_VERSION = 0 
     }
 
     stages {
