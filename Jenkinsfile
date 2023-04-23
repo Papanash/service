@@ -2,9 +2,9 @@ pipeline {
     agent any
     environment {
         DOCKER_PASSWORD = credentials("docker_password")
-        MAJOR_VERSION = 0
-        MINOR_VERSION = 0
-        PATCH_VERSION = 0
+        VERSION_MAJOR = 0
+        VERSION_MINOR = 0
+        VERSION_PATCH = 0
     }
 
     stages {
@@ -13,18 +13,19 @@ pipeline {
                 sh './gradlew clean build'
             }
         }
+
         stage('Tag image') {
-              steps {
+            steps {
                 script {
-                    GIT_TAG = sh([script: 'git fetch --tag && git tag', returnStdout: true]).trim()
-                    MAJOR_VERSION = sh([script: 'git tag | cut -d . -f 1', returnStdout: true]).trim()
-                    MINOR_VERSION = sh([script: 'git tag | cut -d . -f 2', returnStdout: true]).trim()
-                    PATCH_VERSION = sh([script: 'git tag | cut -d . -f 3', returnStdout: true]).trim()
+                    VERSION_MAJOR = sh([script: 'git describe --abbrev=0 --tags | cut -d . -f 1', returnStdout: true]).trim()
+                    VERSION_MINOR = sh([script: 'git describe --abbrev=0 --tags | cut -d . -f 2', returnStdout: true]).trim()
+                    VERSION_PATCH = sh([script: 'git describe --abbrev=0 --tags | cut -d . -f 3', returnStdout: true]).trim()
+                    NEW_MINOR_VERSION = Integer.parseInt(VERSION_MINOR) + 1
                 }
-                sh "docker build -t $DOCKER_PASSWORD_USR/hello-img:${MAJOR_VERSION}.\$((${MINOR_VERSION} + 1)).${PATCH_VERSION} ."
-                sh "docker login docker.io -u $DOCKER_PASSWORD_USR -p $DOCKER_PASSWORD_PSW "
-                sh "docker push $DOCKER_PASSWORD_USR/hello-img:${MAJOR_VERSION}.\$((${MINOR_VERSION} + 1)).${PATCH_VERSION} "
-              }
+                sh "docker build -t mirceap24/hello-img:${VERSION_MAJOR}.${NEW_MINOR_VERSION}.${VERSION_PATCH} ."
+                sh "docker login docker.io -u mirceap24 -p parola123!"
+                sh "docker push mirceap24/hello-img:${VERSION_MAJOR}.${NEW_MINOR_VERSION}.${VERSION_PATCH}"
+            }
         }
     }
 }
