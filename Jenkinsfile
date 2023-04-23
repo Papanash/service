@@ -13,7 +13,7 @@ pipeline {
             }
         }
 
-        stage('Tag image') {
+        stage('Tag, Build and Push image') {
             steps {
                 script {
                     sh([script: 'git fetch --tag', returnStdout: true]).trim()
